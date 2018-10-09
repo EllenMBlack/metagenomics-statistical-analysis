@@ -1,0 +1,17 @@
+#input file is a hierarchical list of metabolic pathways, gene families, and orthologous proteins, and relative abundances for each sample.
+
+# "filename.in" is the output which takes the tabular input and formats into matrix with classes (treatments) labeled.
+#"-c" value of 1 means the class labeles are in row 1. My table was formatted for treatments "Mussel" and "No_mussel"
+# "-o" value of 1,000,000 normalizes abundances to a total count of 1 million, as is commonly done for NGS data.
+
+format_input.py Ngenefamilies_with_tree.txt Ngenefamiliesformat.in -c 1 -o 1000000
+
+#this step actually performs the statistical analysis with Kruskal Wallis sum rank test to assess differential abundance with alpha cutoff of 0.05 for significance. Data passing Kruskal Wallis test with significant alpha values are assessed with a pairwise Wilcoxon test and assigned a LDA log-score. The more a LDA score differes from zero represents an increasingly large effect size for treatments.
+#I used an LDA cutoff of 2.0 to restrict final reports to the most significant findings.
+run_lefse.py Ngemefamiliesformat.in LDA_effect_size.res
+
+#visualization of ranked features and effect sizes. automatically shows first feature in green (Mussels) and second feature in red (No_mussels)
+plot_res.py LDA_effect_size.res LDA_effect_size.png
+
+#plots statistically significant results in a taxonomic tree, only if provided in hierarchical format in column 1
+plot_cladogram.py LDA_effect_size.res LDA_effect_size.cladogram.png --format png
